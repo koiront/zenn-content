@@ -54,13 +54,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH="draft/${{ inputs.topic_id }}-$(date +%Y%m%d)"
+          BRANCH="draft/${{ inputs.topic_id }}-$(date +%Y%m%d-%H%M%S)"
           git config user.name "zenn-bot"
           git config user.email "bot@example.com"
           git checkout -b "$BRANCH"
           git add articles/
-          git commit -m "feat(draft): ${{ inputs.topic_id }} の下書きを生成"
-          git push origin "$BRANCH"
+          git commit -m "feat(draft): ${{ inputs.topic_id }} の下書きを生成" || {
+            echo "⚠️ 変更がないためスキップします"
+            exit 0
+          }
+          git push --force-with-lease origin "$BRANCH"
           gh pr create \
             --title "📝 記事ドラフト: ${{ inputs.topic_id }}" \
             --body "## AI生成ドラフト
