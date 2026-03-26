@@ -23,16 +23,15 @@ Follow these rules to generate a draft for a Zenn tech article in English.
 - Never include inaccurate information. Mark uncertain claims with "※ needs verification"
 - Write naturally — leave room for personal opinions and experiences to be added later
 - Use specific version numbers and verify they are current
-- Output the frontmatter in this format:
+- Output the frontmatter in this format (IMPORTANT: title must be under 60 characters):
 
 ```yaml
 ---
-title: "Article Title"
+title: "Article Title (max 60 chars)"
 emoji: "appropriate emoji"
 type: "tech"
 topics: ["topic1", "topic2"]
 published: false
-lang: "en"
 ---
 ```
 
