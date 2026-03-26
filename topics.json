@@ -1,0 +1,65 @@
+{
+  "categories": {
+    "ai": {
+      "label": "AI / Machine Learning",
+      "topics": [
+        {
+          "id": "ai-001",
+          "title_ja": "Claude Code実践ガイド：ターミナルからAIエージェントを使いこなす",
+          "title_en": "Practical guide to Claude Code: mastering AI agents from the terminal",
+          "status": "draft",
+          "priority": "high",
+          "tags_ja": ["Claude", "AI", "開発ツール", "CLI"],
+          "tags_en": ["Claude", "AI", "DevTools", "CLI"],
+          "notes": "自分の実体験ベースで書ける。Primecastでの活用事例も含める"
+        },
+        {
+          "id": "ai-002",
+          "title_ja": "Gemini API入門：無料枠で始めるAIアプリ開発",
+          "title_en": "Getting started with Gemini API: building AI apps on the free tier",
+          "status": "idea",
+          "priority": "high",
+          "tags_ja": ["Gemini", "Google AI", "API", "チュートリアル"],
+          "tags_en": ["Gemini", "Google AI", "API", "Tutorial"],
+          "notes": "記事生成システム自体の構築過程をネタにできる"
+        }
+      ]
+    },
+    "frontend": {
+      "label": "Frontend Development",
+      "topics": [
+        {
+          "id": "fe-001",
+          "title_ja": "2026年版：Next.js vs Remix vs Astro 徹底比較",
+          "title_en": "2026 edition: Next.js vs Remix vs Astro comparison",
+          "status": "idea",
+          "priority": "medium",
+          "tags_ja": ["Next.js", "Remix", "Astro", "フロントエンド"],
+          "tags_en": ["Next.js", "Remix", "Astro", "Frontend"],
+          "notes": "比較系記事はSEOに強い"
+        }
+      ]
+    },
+    "ai_x_frontend": {
+      "label": "AI × Frontend",
+      "topics": [
+        {
+          "id": "axf-001",
+          "title_ja": "AIで技術記事を半自動生成するシステムを作った話",
+          "title_en": "Building a semi-automated tech article generation system with AI",
+          "status": "idea",
+          "priority": "high",
+          "tags_ja": ["AI", "自動化", "Zenn", "GitHub Actions"],
+          "tags_en": ["AI", "Automation", "Zenn", "GitHub Actions"],
+          "notes": "このシステム自体をネタにする。メタ的で面白い"
+        }
+      ]
+    }
+  },
+  "settings": {
+    "default_language": ["ja", "en"],
+    "ai_provider": "gemini",
+    "fallback_provider": "claude",
+    "review_required": true
+  }
+}

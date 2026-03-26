@@ -1,0 +1,123 @@
+name: Zenn Article Pipeline
+
+on:
+  # 手動トリガー（トピックIDを指定して記事生成）
+  workflow_dispatch:
+    inputs:
+      topic_id:
+        description: 'トピックID (例: ai-001)'
+        required: true
+        type: string
+      language:
+        description: '言語'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - ja
+          - en
+          - both
+
+  # articles/ 配下の変更でLint実行
+  pull_request:
+    paths:
+      - 'articles/**'
+      - 'books/**'
+
+jobs:
+  # ─── Job 1: AI記事生成 → PR作成 ───────────────────
+  generate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Generate article draft
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node scripts/generate-article.js \
+            --topic ${{ inputs.topic_id }} \
+            --lang ${{ inputs.language }}
+
+      - name: Create PR with draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="draft/${{ inputs.topic_id }}-$(date +%Y%m%d)"
+          git config user.name "zenn-bot"
+          git config user.email "bot@example.com"
+          git checkout -b "$BRANCH"
+          git add articles/
+          git commit -m "feat(draft): ${{ inputs.topic_id }} の下書きを生成"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "📝 記事ドラフト: ${{ inputs.topic_id }}" \
+            --body "## AI生成ドラフト
+
+          トピック: \`${{ inputs.topic_id }}\`
+          言語: \`${{ inputs.language }}\`
+
+          ### チェックリスト
+          - [ ] 内容の正確性を確認
+          - [ ] 自分の知見・経験を加筆
+          - [ ] コード例を動作確認
+          - [ ] published: true に変更
+          - [ ] タイトルとemoji を最終調整" \
+            --base main \
+            --head "$BRANCH" \
+            --draft
+
+  # ─── Job 2: 記事のLintチェック ─────────────────────
+  lint:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - name: Validate Zenn articles
+        run: npx zenn-cli list:articles 2>&1 || true
+
+      - name: Check frontmatter
+        run: |
+          echo "🔍 Checking frontmatter..."
+          for f in articles/*.md; do
+            if [ -f "$f" ]; then
+              # published: false のままならOK（ドラフト）
+              if grep -q "published: true" "$f"; then
+                echo "✅ $f は公開予定です"
+              else
+                echo "📝 $f はまだドラフトです"
+              fi
+            fi
+          done
+
+      - name: Check article length
+        run: |
+          echo "📏 Checking article length..."
+          for f in articles/*.md; do
+            if [ -f "$f" ]; then
+              WORDS=$(wc -c < "$f")
+              if [ "$WORDS" -lt 1000 ]; then
+                echo "⚠️  $f は短すぎます (${WORDS} bytes) - 加筆が必要"
+              else
+                echo "✅ $f: ${WORDS} bytes"
+              fi
+            fi
+          done
